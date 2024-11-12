@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of pages to display based on selected index
   final List<Widget> _pages = [
     KitchenPage(),
-    MapPage(),
+    const MapPage(),
     const VaultPage(),
     PalettePage(),
     const ProfilePage(),
@@ -79,10 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_navBarItems()[_selectedIndex].label!, style: const TextStyle(color: Colors.white)),
+        title: Text(_navBarItems()[_selectedIndex].label!,
+            style: const TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF14213D), // AppBar color
         toolbarHeight: 80,
       ),
