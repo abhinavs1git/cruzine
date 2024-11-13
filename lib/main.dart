@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Bottom Nav App',
+      title: 'Cruzine',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     KitchenPage(),
     const MapPage(),
     const VaultPage(),
-    PalettePage(),
+    const PalettePage(),
     const ProfilePage(),
   ];
 
