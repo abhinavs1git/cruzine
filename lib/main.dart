@@ -36,14 +36,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 2;
+  bool isPro = false; // New boolean for Pro mode
 
   // List of pages to display based on selected index
-  final List<Widget> _pages = [
+  List<Widget> get _pages => [
     KitchenPage(),
     const MapPage(),
-    const VaultPage(),
-    const PalettePage(),
-    const ProfilePage(),
+    VaultPage(isPro: isPro), // Pass isPro to VaultPage
+    PalettePage(isPro: isPro), // Pass isPro to PalettePage
+    ProfilePage(onProToggle: (value) { // ProfilePage toggle for Pro mode
+      setState(() {
+        isPro = value;
+      });
+    }),
   ];
 
   // List of BottomNavigationBarItem for the bar with label and icon
@@ -82,8 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_navBarItems()[_selectedIndex].label!,
-            style: const TextStyle(color: Colors.white)),
+        title: Text(
+          _navBarItems()[_selectedIndex].label!,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF14213D), // AppBar color
         toolbarHeight: 80,
       ),

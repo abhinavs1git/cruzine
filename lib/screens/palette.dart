@@ -1,124 +1,252 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:timelines/timelines.dart';
 
 class PalettePage extends StatefulWidget {
-  const PalettePage({super.key});
+  final bool isPro;
+
+  const PalettePage({super.key, required this.isPro});
 
   @override
   _PalettePageState createState() => _PalettePageState();
 }
 
 class _PalettePageState extends State<PalettePage> {
-  int _currentStep = 0;
+  String? selectedDishImage;
+  String? selectedDishName;
+  bool showSimilarDishes = false;
+  String searchQuery = "";
 
-  void _nextStep() {
-    if (_currentStep < 1) {
-      setState(() {
-        _currentStep += 1;
-      });
-    }
-  }
+  final List<Map<String, String>> dishes = [
+    {'name': 'Dish 1', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Dish 2', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Dish 3', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Dish 4', 'image': 'https://via.placeholder.com/150'},
+    {'name': 'Dish 5', 'image': 'https://via.placeholder.com/150'},
+  ];
 
-  void _previousStep() {
-    if (_currentStep > 0) {
-      setState(() {
-        _currentStep -= 1;
-      });
-    }
+  final List<Map<String, String>> similarDishes = [
+    {'name': 'Similar Dish 1', 'image': 'https://via.placeholder.com/100'},
+    {'name': 'Similar Dish 2', 'image': 'https://via.placeholder.com/100'},
+    {'name': 'Similar Dish 3', 'image': 'https://via.placeholder.com/100'},
+    {'name': 'Similar Dish 4', 'image': 'https://via.placeholder.com/100'},
+  ];
+
+  void showDishSelection() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Select a Dish',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search dishes...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                    onChanged: (query) {
+                      setModalState(() {
+                        searchQuery = query;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: dishes.length,
+                      itemBuilder: (context, index) {
+                        final dish = dishes[index];
+                        final name = dish['name']!.toLowerCase();
+                        if (searchQuery.isNotEmpty && !name.contains(searchQuery.toLowerCase())) {
+                          return Container();
+                        }
+                        return ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              dish['image']!,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          title: Text(dish['name']!, style: const TextStyle(fontSize: 16)),
+                          onTap: () {
+                            setState(() {
+                              selectedDishImage = dish['image'];
+                              selectedDishName = dish['name'];
+                              showSimilarDishes = false;
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(height: 80, child: Container(color: Colors.blue,),),
-          Padding(
-            padding: const EdgeInsets.all(16), // Align timeline to the left
-            child: FixedTimeline.tileBuilder(
-              theme: TimelineThemeData(
-                color: const Color(0xFF14213D),
-                indicatorPosition: 0.1,
-              ),
-              builder: TimelineTileBuilder.connected(
-                itemCount: 2,
-                connectorBuilder: (_, index, __) => const DashedLineConnector(color: Colors.grey),
-                indicatorBuilder: (_, index) => const DotIndicator(
-                  color: Color(0xFF14213D),
-                  size: 20,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 30),
+              GestureDetector(
+                onTap: showDishSelection,
+                child: Container(
+                  height: 120,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blueGrey, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                  child: selectedDishImage == null
+                      ? const Icon(Icons.add, size: 40, color: Colors.blueAccent)
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            selectedDishImage!,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                 ),
-                contentsBuilder: (context, index) {
-                  // Show specific content based on the active step and index
-                  if (index == 0 && _currentStep == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        height: 300,
-                        color: Colors.blue,
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'aalo',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  } 
-                  else if (index == 1 && _currentStep == 0) {
-                    return const Padding(
-                      padding: EdgeInsets.fromLTRB(12, 0, 4, 0),
-                      child: Text(
-                        'Get your Palette',
-                        style: TextStyle(color: Colors.grey, fontSize: 18),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-                  else if (index == 0 && _currentStep == 1) {
-                    return const Padding(
-                      padding: EdgeInsets.fromLTRB(24, 0, 4, 0),
-                      child: Text(
-                        'Dish Selected',
-                        style: TextStyle(color: Colors.grey, fontSize: 18),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  } else if (index == 1 && _currentStep == 1) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        height: 300,
-                        color: Colors.blue,
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'bhalo',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
               ),
-            ),
+              const SizedBox(height: 10),
+              if (selectedDishName != null)
+                Text(
+                  selectedDishName!,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                )
+              else
+                const Text(
+                  "Select a Dish",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size.fromWidth(240),
+                  backgroundColor: const Color(0xFF14213D),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    showSimilarDishes = true;
+                  });
+                },
+                child: const Text('Get Palette', style: TextStyle(fontSize: 16, color: Colors.white)),
+              ),
+              const SizedBox(height: 32),
+              if (showSimilarDishes)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    itemCount: widget.isPro ? similarDishes.length : 4,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final similarDish = similarDishes[index];
+                      // Check if it's one of the locked dishes
+                      bool isLocked = !widget.isPro && index >= 2;
+
+                      return Column(
+                        children: [
+                          Container(
+                            height: 80,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blueGrey),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 5,
+                                  offset: Offset(2, 2),
+                                ),
+                              ],
+                            ),
+                            child: isLocked
+                                ? const Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.lock, color: Colors.grey, size: 30),
+                                      ],
+                                    ),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      similarDish['image']!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            isLocked ? 'Premium' : similarDish['name']!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isLocked ? Colors.grey : Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(height: 20),
-          // Display buttons based on the step
-          if (_currentStep == 0)
-            ElevatedButton(
-              onPressed: _nextStep,
-              child: const Text('Next'),
-            )
-          else if (_currentStep == 1)
-            ElevatedButton(
-              onPressed: _previousStep,
-              child: const Text('Back'),
-            ),
-        ],
+        ),
       ),
     );
   }
