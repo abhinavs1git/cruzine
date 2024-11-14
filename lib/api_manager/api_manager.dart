@@ -139,14 +139,14 @@ class ApiManager {
   }
 
   Future<dynamic> searchRecipe(Map<String,String> params) async{
-    var request_str = "";
+    var requestStr = "";
     
     for(MapEntry e in params.entries){
-      request_str += "${e.key}=${e.value}";
+      requestStr += "${e.key}=${e.value}";
     }
 
     try{
-      var response = await dio.get("$foodUrl/searchrecipe?$request_str");
+      var response = await dio.get("$foodUrl/searchrecipe?$requestStr");
       return jsonDecode(response.data);
     }catch(e){
       print("Error searching for recipes");
@@ -178,6 +178,5 @@ class ApiManager {
   }
 
   
-
 
 }

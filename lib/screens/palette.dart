@@ -25,7 +25,7 @@ class _PalettePageState extends State<PalettePage> {
     {'name': 'Dish 5', 'image': 'https://via.placeholder.com/150'},
   ];
 
-  final List<Map<String, String>> similarDishes = [
+  final List<Map<String, String>> similarDishes = [ //similarRecipesProcess endpoint use
     {'name': 'Similar Dish 1', 'image': 'https://via.placeholder.com/100'},
     {'name': 'Similar Dish 2', 'image': 'https://via.placeholder.com/100'},
     {'name': 'Similar Dish 3', 'image': 'https://via.placeholder.com/100'},
