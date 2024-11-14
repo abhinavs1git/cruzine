@@ -1,11 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import '../screens/kitchen.dart';
-import '../screens/map.dart';
-import '../screens/vault.dart';
-import '../screens/palette.dart';
-import '../screens/profile.dart';
+import './screens/kitchen.dart';
+import './screens/map.dart';
+import './screens/vault.dart';
+import './screens/palette.dart';
+import './screens/profile.dart';
 
 void main() {
   runApp(const MyApp());
