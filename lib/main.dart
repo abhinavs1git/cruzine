@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // List of pages to display based on selected index
   List<Widget> get _pages => [
-    KitchenPage(),
+    KitchenPage(isPro: isPro),
     const MapPage(),
     VaultPage(isPro: isPro), // Pass isPro to VaultPage
     PalettePage(isPro: isPro), // Pass isPro to PalettePage
