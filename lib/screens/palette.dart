@@ -14,7 +14,9 @@ class PalettePage extends StatefulWidget {
 class _PalettePageState extends State<PalettePage> {
   String? selectedDishImage;
   String? selectedDishName;
-  bool showSimilarDishes = false;
+  bool showIngredients = false;
+  bool showSubstitutes = false;
+  String? selectedIngredient;
   String searchQuery = "";
 
   final List<Map<String, String>> dishes = [
@@ -25,12 +27,14 @@ class _PalettePageState extends State<PalettePage> {
     {'name': 'Dish 5', 'image': 'https://via.placeholder.com/150'},
   ];
 
-  final List<Map<String, String>> similarDishes = [ //similarRecipesProcess endpoint use
-    {'name': 'Similar Dish 1', 'image': 'https://via.placeholder.com/100'},
-    {'name': 'Similar Dish 2', 'image': 'https://via.placeholder.com/100'},
-    {'name': 'Similar Dish 3', 'image': 'https://via.placeholder.com/100'},
-    {'name': 'Similar Dish 4', 'image': 'https://via.placeholder.com/100'},
-  ];
+  final List<String> ingredients = ['Salt', 'Sugar', 'Butter', 'Flour', 'Oil'];
+  final Map<String, List<String>> substitutes = {
+    'Salt': ['Soy Sauce', 'Celery Salt', 'Seaweed'],
+    'Sugar': ['Honey', 'Stevia', 'Maple Syrup'],
+    'Butter': ['Margarine', 'Coconut Oil', 'Avocado'],
+    'Flour': ['Cornmeal', 'Almond Flour', 'Coconut Flour'],
+    'Oil': ['Ghee', 'Vegetable Shortening', 'Unsweetened Applesauce'],
+  };
 
   void showDishSelection() {
     showModalBottomSheet(
@@ -77,7 +81,8 @@ class _PalettePageState extends State<PalettePage> {
                       itemBuilder: (context, index) {
                         final dish = dishes[index];
                         final name = dish['name']!.toLowerCase();
-                        if (searchQuery.isNotEmpty && !name.contains(searchQuery.toLowerCase())) {
+                        if (searchQuery.isNotEmpty &&
+                            !name.contains(searchQuery.toLowerCase())) {
                           return Container();
                         }
                         return ListTile(
@@ -90,12 +95,15 @@ class _PalettePageState extends State<PalettePage> {
                               fit: BoxFit.cover,
                             ),
                           ),
-                          title: Text(dish['name']!, style: const TextStyle(fontSize: 16)),
+                          title: Text(dish['name']!,
+                              style: const TextStyle(fontSize: 16)),
                           onTap: () {
                             setState(() {
                               selectedDishImage = dish['image'];
                               selectedDishName = dish['name'];
-                              showSimilarDishes = false;
+                              showIngredients = false;
+                              showSubstitutes = false;
+                              selectedIngredient = null;
                             });
                             Navigator.pop(context);
                           },
@@ -140,7 +148,8 @@ class _PalettePageState extends State<PalettePage> {
                     ],
                   ),
                   child: selectedDishImage == null
-                      ? const Icon(Icons.add, size: 40, color: Colors.blueAccent)
+                      ? const Icon(Icons.add,
+                          size: 40, color: Colors.blueAccent)
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(
@@ -154,12 +163,14 @@ class _PalettePageState extends State<PalettePage> {
               if (selectedDishName != null)
                 Text(
                   selectedDishName!,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w500),
                 )
               else
                 const Text(
                   "Select a Dish",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w500),
                 ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -174,75 +185,63 @@ class _PalettePageState extends State<PalettePage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    showSimilarDishes = true;
+                    showIngredients = true;
+                    showSubstitutes = false;
+                    selectedIngredient = null;
                   });
                 },
-                child: const Text('Get Palette', style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: const Text('Get Ingredients',style:TextStyle(fontSize: 16, color: Colors.white),),
               ),
-              const SizedBox(height: 32),
-              if (showSimilarDishes)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    itemCount: widget.isPro ? similarDishes.length : 4,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1,
-                    ),
-                    itemBuilder: (context, index) {
-                      final similarDish = similarDishes[index];
-                      // Check if it's one of the locked dishes
-                      bool isLocked = !widget.isPro && index >= 2;
-
-                      return Column(
-                        children: [
-                          Container(
-                            height: 80,
-                            width: 80,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blueGrey),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(2, 2),
-                                ),
-                              ],
-                            ),
-                            child: isLocked
-                                ? const Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.lock, color: Colors.grey, size: 30),
-                                      ],
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      similarDish['image']!,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            isLocked ? 'Premium' : similarDish['name']!,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isLocked ? Colors.grey : Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      );
-                    },
+              const SizedBox(height: 20),
+              if (showIngredients)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: ingredients.map((ingredient) {
+                    return ChoiceChip(
+                      selectedColor: Colors.lightBlueAccent,
+                      label: Text(ingredient),
+                      selected: selectedIngredient == ingredient,
+                      onSelected: (bool selected) {
+                        setState(() {
+                          selectedIngredient =
+                              selected ? ingredient : null;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              const SizedBox(height: 20),
+              if (selectedIngredient != null)
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                  fixedSize: const Size.fromWidth(240),
+                  backgroundColor: const Color(0xFF14213D),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                ),
+                  onPressed: () {
+                    setState(() {
+                      showSubstitutes = true;
+                    });
+                  },
+                  child: const Text('Get Substitute',style:TextStyle(fontSize: 16, color: Colors.white)),
+                ),
+              const SizedBox(height: 20),
+              if (showSubstitutes)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: substitutes[selectedIngredient]!
+                      .map((substitute) {
+                    return Chip(
+                      label: Text(substitute),
+                    );
+                  }).toList(),
                 ),
             ],
           ),
