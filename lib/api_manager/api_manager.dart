@@ -3,180 +3,99 @@ import 'dart:ffi';
 
 import 'package:dio/dio.dart';
 
-class ApiManager {
-  final dio = Dio();
 
-  var foodUrl = "https://cosylab.iiitd.edu.in/api/recipeDB";
-  var authUrl = "https:/suggondeeznuts.com";
+var dio = Dio();
+var headers = {
+  'Authorization' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.x6OxH120iJxLyxEliEXXCocDk5pHxR38PjdCmUJfayQ'
+};
 
-  Future<bool> register(String email ,String mobile, String password) async {
-
-    final String formField = jsonEncode({
-      'email':email,
-      'mobile': mobile,
-      'password': password
-    });
+Future<dynamic> getCuisine(String country) async{
+    var country_ids;
 
     try{
-      var response = await dio.post('$authUrl/register',data: formField);
-      print(jsonDecode(response.data));
-      print(response.statusMessage);
-    }catch(e){
-      print("Registration error\n");
-      return false;
-    }
-
-    return true;
-  }
-
-  Future<bool> login(String username, dynamic password) async {
-    final String data = jsonEncode({
-      'username':username,
-      'password' : password
-    });
-
-    try{
-      var response = await dio.post('$authUrl/login/',data: data);
-      print(response.statusMessage);
+      var response = await dio.get('http://10.0.2.2:5000/map/$country',options: Options(
+        headers: headers
+      ));
+      country_ids = jsonDecode(response.data);
+      print(country_ids);
+      return country_ids;
 
     }catch(e){
-      print("Error logging in");
+      print("Error getting cuisine $e");
     }
 
-    return false;
-  }
-
-  Future<dynamic> getRecipeInfo(String recipeId) async{
-    try{
-      var response = await dio.get("$foodUrl/recipeInfo/$recipeId");
-      return jsonDecode(response.data);
-
-    }catch(e){
-      print("error getting recipe information\n");
-    }
-    return null;
-  }
-
-  Future<dynamic> searchBySubRegion(String subRegion) async {
-    try{
-      var response = await dio.get("$foodUrl/search_subregion/$subRegion");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("error searching by subregion");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> searchByRegion(String region) async {
-    try{
-      var response = await dio.get("$foodUrl/search_region/$region");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("error searching by region");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> getIngredientsByRecipe(String recipeId) async {
-
-    try{
-      var response = await dio.get("$foodUrl/getingredientsbyrecipe/$recipeId");
-      //TODO parse the response sting to just return the ingredient names from all the json mumbo jumbo
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error get ingredients\n");
-      
-    }
-
-    return null;
-  }
-
-  Future<dynamic> recipeOfTheDay() async{
-    try{
-      var response = await dio.get("$foodUrl/recipeoftheday/");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("error getting recipe of the day");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> instructions(String recipeId) async {
-
-    try{
-      var response = await dio.get("$foodUrl/instructions/$recipeId");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error fetching ingredients");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> similarRecipesProcess(String recipeId) async {
-    try{
-      var response = await dio.get("$foodUrl/similarrecipespro/$recipeId");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error getting similar recipes");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> similarRecipesCategory(String recipeId) async {
-    try{
-      var response = await dio.get("$foodUrl/similarrecipescat/$recipeId");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error getting similar recipes - 2");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> searchRecipe(Map<String,String> params) async{
-    var requestStr = "";
-    
-    for(MapEntry e in params.entries){
-      requestStr += "${e.key}=${e.value}";
-    }
-
-    try{
-      var response = await dio.get("$foodUrl/searchrecipe?$requestStr");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error searching for recipes");
-    }
-
-    return null;
-  }
-
-  Future<dynamic> searchIngredient(String name) async {
-    try{
-      var response = await dio.get("$foodUrl/searchingredientinrecipes/$name");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error searching for ingredient");
-    }
-
-    return null;
-  }
-  
-  Future<dynamic> searchIngredientNutrition(String name) async {
-    try{
-      var response = await dio.get("$foodUrl/searchingredientnutrition/$name");
-      return jsonDecode(response.data);
-    }catch(e){
-      print("Error getting ingredient nutrition");
-    }
-
-    return null;
-  }
-
-  
-
+    return "recipes";
 }
+
+Future<dynamic> getDish(String recipeID) async{
+  try{
+    var response = await dio.get("http://10.0.2.2:5000/recipe/$recipeID",options: Options(
+      headers: headers
+    ));
+    var result = jsonDecode(response.data);
+    print(result);
+    return result;
+
+  }catch(e){
+    print("Error getting dish $e");
+  }
+
+  return "";
+}
+
+ Future<dynamic> rotd() async{
+  try{
+    var response = await dio.get("http://10.0.2.2:5000/rotd",options: Options(
+      headers: headers
+    ));
+
+    return jsonDecode(response.data);
+
+  }catch(e){
+    print("Error $e");
+  }
+ }
+
+ Future<dynamic> getDishs() async{
+  try{
+    var response = await dio.get("http://10.0.2.2:5000/dishes/",options: Options(
+      headers: headers
+    ));
+
+    return jsonDecode(response.data);
+  }catch(e){
+    print("Error dishes $e");
+  }
+ }
+
+ Future<dynamic> search(String title) async{
+  try{
+    var response = await dio.get("http://10.0.2.2:5000/search/$title",options: Options(
+      headers: headers
+    ));
+
+    return jsonDecode(response.data);
+  }catch(e){
+    print("Error dishes $e");
+  }
+ }
+
+
+ Future<dynamic> adv(String cal) async{
+  var data = {
+    "energy"  : cal
+  };
+  try{
+    var res = await dio.post("http://10.0.2.2:5000/adv",data:data,options: Options(
+      headers: headers
+    ));
+
+    return jsonDecode(res.data);
+  }catch(e){
+    print("Error $e");
+  }
+ }
+
+
+
+

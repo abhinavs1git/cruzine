@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import './screens/kitchen.dart';
 import './screens/map.dart';
 import './screens/vault.dart';
 import './screens/palette.dart';
@@ -35,15 +34,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 1;
   bool isPro = false; // New boolean for Pro mode
 
   // List of pages to display based on selected index
   List<Widget> get _pages => [
-    KitchenPage(isPro: isPro),
     const MapPage(),
     VaultPage(isPro: isPro), // Pass isPro to VaultPage
-    PalettePage(isPro: isPro), // Pass isPro to PalettePage
+    ComparePage(), // Pass isPro to PalettePage
     ProfilePage(onProToggle: (value) { // ProfilePage toggle for Pro mode
       setState(() {
         isPro = value;
@@ -54,10 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of BottomNavigationBarItem for the bar with label and icon
   List<BottomNavigationBarItem> _navBarItems() {
     return [
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.kitchen),
-        label: 'Kitchen',
-      ),
       const BottomNavigationBarItem(
         icon: Icon(Icons.map),
         label: 'Map',
